@@ -1,0 +1,65 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+## General Type
+type Response {
+  message: String
+}
+
+type Subscription {
+  ListenMessage : Message!
+}
+
+type Query {
+  ListProduct : [Product!]!
+  GetProduct(id:ID!) : Product!
+}
+
+type Mutation {
+  CreateProduct(product: CreateProductParams) : Response
+  SendMessage(msg: MessageInput!) : Response
+}
+
+## User
+type User {
+  id: ID!
+  name: String!
+}
+
+input UserInput {
+  id : ID!
+  name: String!
+}
+
+
+## Product
+type Product {
+  id: ID!
+  name : String!
+  description : String!
+  price : Float!
+}
+
+input CreateProductParams {
+  name: String
+  description: String
+  price: Float
+}
+
+## Messaging
+type Message {
+  id : ID!
+  from : User!
+  to : User!
+  msg : String!
+}
+
+input MessageInput {
+  id : ID!
+  from : UserInput!
+  to : UserInput!
+  msg : String!
+}
+
+
