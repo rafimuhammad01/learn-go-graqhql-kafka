@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
+	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"github.com/pkg/errors"
 	"github.com/rafimuhammad01/learn-go-graphql/internal/core"
@@ -17,6 +18,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/rs/cors"
+
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/rafimuhammad01/learn-go-graphql/graph"
@@ -28,12 +31,18 @@ const defaultKafkaAddress = "localhost:29092"
 const defaultKafkaTopic = "test"
 
 func main() {
+	router := mux.NewRouter()
+	router.Use(cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"},
+		AllowCredentials: true,
+	}).Handler)
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = defaultPort
 	}
 
-	kafkaAddress := os.Getenv("KAFKA_PORT")
+	kafkaAddress := os.Getenv("KAFKA_ADDRESS")
 	if kafkaAddress == "" {
 		kafkaAddress = defaultKafkaAddress
 	}
@@ -71,9 +80,9 @@ func main() {
 		return err
 	})
 
-	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", srv)
+	router.Handle("/", playground.Handler("GraphQL playground", "/query"))
+	router.Handle("/query", srv)
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	log.Fatal(http.ListenAndServe(":"+port, router))
 }
