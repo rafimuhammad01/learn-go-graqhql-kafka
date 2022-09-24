@@ -33,9 +33,19 @@ func main() {
 		port = defaultPort
 	}
 
+	kafkaAddress := os.Getenv("KAFKA_PORT")
+	if kafkaAddress == "" {
+		kafkaAddress = defaultKafkaAddress
+	}
+
+	kafkaTopic := os.Getenv("KAFKA_TOPIC")
+	if kafkaTopic == "" {
+		kafkaTopic = defaultKafkaTopic
+	}
+
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{
 		ProductService: service.NewProduct(repository.NewProduct()),
-		MessageService: service.NewMessage(repository.NewMessage(broker.NewKafka(defaultKafkaAddress, defaultKafkaTopic))),
+		MessageService: service.NewMessage(repository.NewMessage(broker.NewKafka(kafkaAddress, kafkaTopic))),
 	}}))
 
 	srv.AddTransport(&transport.Websocket{
